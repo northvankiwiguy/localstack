@@ -201,12 +201,15 @@ class StepFunctionsStateMachineProvider(ResourceProvider[StepFunctionsStateMachi
         model = request.desired_state
         step_function = request.aws_client_factory.stepfunctions
 
+        s3_client = request.aws_client_factory.s3
+        definition_str = self._get_definition(model, s3_client)
+
         if not model.get("Arn"):
             model["Arn"] = request.previous_state["Arn"]
 
         params = {
             "stateMachineArn": model["Arn"],
-            "definition": model["DefinitionString"],
+            "definition": definition_str,
         }
 
         step_function.update_state_machine(**params)
